@@ -1,5 +1,34 @@
 const apiKey = '1ab83bf0';
 
+function adicionarMensagemUsuario(texto) {
+    const chat = document.getElementById("chat");
+    chat.innerHTML += `<div class="msg usuario">${texto}</div>`;
+}
+
+function adicionarMensagemBot(texto) {
+    const chat = document.getElementById("chat");
+    chat.innerHTML += `<div class="msg bot">${texto}</div>`;
+}
+
+
+function enviarMensagem() {
+    const input = document.getElementById("mensagem");
+    const texto = input.value.trim();
+
+    if (texto === "") return;
+
+    adicionarMensagemUsuario(texto);
+    input.value = "";
+
+    if (texto.startsWith("/filme ")) {
+        const titulo = texto.replace("/filme ", "").trim();
+        buscarFilmeBot(titulo);
+    } else {
+        adicionarMensagemBot("Comando não reconhecido. Tente: /filme NomeDoFilme");
+    }
+}
+
+
 async function buscarFilmes(termo) {
     const url = `https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(termo)}`;
 
@@ -41,6 +70,4 @@ async function buscarFilmes(termo) {
     }
 }
 
-// Chamada de teste
-buscarFilmes("Batman");
 
