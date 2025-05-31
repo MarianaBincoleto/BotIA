@@ -71,6 +71,11 @@ header {
    gap: 3px;
 }
 
+.menus a {
+    text-decoration: none;
+    color: inherit; /* para manter a cor do texto igual ao restante */
+}
+
 /* FILMES CONTAINER */
 #filmesContainer {
    display: grid;
