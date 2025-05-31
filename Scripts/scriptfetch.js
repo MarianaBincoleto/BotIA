@@ -1,4 +1,4 @@
-const apiKey = '1ab83bf0'; // Insira sua chave da OMDb API
+const apiKey = '1ab83bf0';
 
 async function buscarFilmes(termo) {
     const url = `https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(termo)}`;
@@ -20,7 +20,7 @@ async function buscarFilmes(termo) {
         const filmes = data.Search;
 
         const container = document.getElementById('filmesContainer');
-        container.innerHTML = '';  // Limpa conteúdo anterior
+        container.innerHTML = '';
 
         filmes.forEach(filme => {
             const div = document.createElement('div');
@@ -42,4 +42,5 @@ async function buscarFilmes(termo) {
 }
 
 // Chamada de teste
-buscarFilmes('Batman');
+buscarFilmes("Batman");
+
