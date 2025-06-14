@@ -23,7 +23,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
         // });
 
         // Verifica se a resposta foi bem-sucedida
-        if (email === "mariana@gmail.com" && password === "12345678") {
+        if (email === "mariana" && password === "1234") {
             // const result = await response.json();
             // console.log('Login bem-sucedido:', result);
             // Redireciona ou faz alguma ação após o login bem-sucedido

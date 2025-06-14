@@ -1,73 +1,78 @@
-const apiKey = '1ab83bf0';
+console.log('script.js carregado');
 
-function adicionarMensagemUsuario(texto) {
-    const chat = document.getElementById("chat");
-    chat.innerHTML += `<div class="msg usuario">${texto}</div>`;
-}
+document.addEventListener('DOMContentLoaded', () => {
+  const apiKey = '1ab83bf0';
+  const chatbotToggler = document.getElementById('chatbotToggler');
+  const chatbotWindow = document.getElementById('chatbotWindow');
+  const chatbotCloseBtn = document.getElementById('chatbotCloseBtn');
+  const chatbotMessages = document.getElementById('chatbotMessages');
+  const chatbotInput = document.getElementById('chatbotInput');
+  const chatbotSendBtn = document.getElementById('chatbotSendBtn');
+  const buttonsearch = document.querySelector('.buttonsearch');
+  const searchInput = document.querySelector('.search-bar input');
 
-function adicionarMensagemBot(texto) {
-    const chat = document.getElementById("chat");
-    chat.innerHTML += `<div class="msg bot">${texto}</div>`;
-}
+  // O restante do seu código, por exemplo:
+  chatbotToggler.addEventListener('click', () => {
+    chatbotWindow.classList.toggle('active');
+    chatbotWindow.setAttribute('aria-hidden', !chatbotWindow.classList.contains('active'));
+    chatbotInput.focus();
+  });
 
+  chatbotCloseBtn.addEventListener('click', () => {
+    chatbotWindow.classList.remove('active');
+    chatbotWindow.setAttribute('aria-hidden', 'true');
+    chatbotToggler.focus();
+  });
 
-function enviarMensagem() {
-    const input = document.getElementById("mensagem");
-    const texto = input.value.trim();
+  chatbotSendBtn.addEventListener('click', enviarMensagem);
+  chatbotInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') enviarMensagem();
+  });
 
-    if (texto === "") return;
+  buttonsearch.addEventListener('click', () => {
+    const termo = searchInput.value.trim();
+    if (!termo) return alert('Por favor, digite um termo para buscar.');
+    alert(`Busca por "${termo}" não está implementada ainda.`);
+  });
 
-    adicionarMensagemUsuario(texto);
-    input.value = "";
+  function enviarMensagem() {
+    const texto = chatbotInput.value.trim();
+    if (!texto) return;
+    adicionarMensagem(texto, 'usuario');
+    chatbotInput.value = '';
+    responder(texto);
+  }
 
-    if (texto.startsWith("/filme ")) {
-        const titulo = texto.replace("/filme ", "").trim();
-        buscarFilmeBot(titulo);
-    } else {
-        adicionarMensagemBot("Comando não reconhecido. Tente: /filme NomeDoFilme");
-    }
-}
+  function adicionarMensagem(texto, remetente) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('msg', remetente);
+    msgDiv.textContent = texto;
+    chatbotMessages.appendChild(msgDiv);
+    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+  }
 
-
-async function buscarFilmes(termo) {
-    const url = `https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(termo)}`;
-
+  async function responder(texto) {
+    adicionarMensagem('Buscando informações sobre "' + texto + '"...', 'bot');
     try {
-        const response = await fetch(url);
+      const response = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(texto)}&apikey=${apiKey}&plot=full&lang=pt`);
+      const data = await response.json();
+      chatbotMessages.lastChild.textContent = ''; // limpa mensagem temporária
 
-        if (!response.ok) {
-            throw new Error('Erro na requisição: ' + response.status);
+      if (data.Response === 'True') {
+        adicionarMensagem(`${data.Title} (${data.Year}) - Nota: ${data.imdbRating}`, 'bot');
+        if (data.Poster && data.Poster !== 'N/A') {
+          const img = document.createElement('img');
+          img.src = data.Poster;
+          img.alt = `Poster do filme ${data.Title}`;
+          chatbotMessages.appendChild(img);
+          chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
         }
-
-        const data = await response.json();
-
-        if (data.Response === "False") {
-            alert('Nenhum filme encontrado.');
-            return;
-        }
-
-        const filmes = data.Search;
-
-        const container = document.getElementById('filmesContainer');
-        container.innerHTML = '';
-
-        filmes.forEach(filme => {
-            const div = document.createElement('div');
-            div.classList.add('filme');
-
-            div.innerHTML = `
-                <h2>${filme.Title} (${filme.Year})</h2>
-                <img src="${filme.Poster !== "N/A" ? filme.Poster : 'https://via.placeholder.com/200x300?text=Sem+Imagem'}" alt="${filme.Title}">
-                <hr>
-            `;
-
-            container.appendChild(div);
-        });
-
+        adicionarMensagem(data.Plot, 'bot');
+      } else {
+        adicionarMensagem('Não encontrei resultados para "' + texto + '".', 'bot');
+      }
     } catch (error) {
-        console.error('Erro:', error);
-        alert('Erro ao buscar filmes.');
+      chatbotMessages.lastChild.textContent = 'Erro na busca. Tente novamente.';
     }
-}
-
-
+  }
+});
